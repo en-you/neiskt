@@ -1,6 +1,6 @@
 import kotlinx.coroutines.runBlocking
 import net.shilu.neis.NeisClient
-import net.shilu.neis.SchoolMeal
+import net.shilu.neis.entities.SchoolMeal
 import java.time.OffsetDateTime
 
 fun main() {

@@ -1,7 +1,6 @@
 package net.shilu.neis.entities
 
 import net.shilu.neis.NeisClient
-import net.shilu.neis.SchoolMeal
 import net.shilu.neis.utilities.JsonMapper
 import java.time.temporal.TemporalAccessor
 

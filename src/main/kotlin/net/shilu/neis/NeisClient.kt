@@ -5,6 +5,7 @@ import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import net.shilu.neis.entities.SchoolInfo
+import net.shilu.neis.entities.SchoolMeal
 import net.shilu.neis.entities.SchoolMealInfo
 import net.shilu.neis.utilities.JsonMapper
 import java.nio.charset.StandardCharsets
@@ -37,14 +38,14 @@ class NeisClient {
     suspend fun retrieveMeals(
         officeCode: String,
         schoolCode: String,
-        mealSchoolCode: SchoolMeal? = null,
+        mealType: SchoolMeal? = null,
         date: TemporalAccessor = Instant.now()
     ): List<SchoolMealInfo> {
         val response = request("/mealServiceDietInfo") {
             this.parameter("ATPT_OFCDC_SC_CODE", officeCode)
             this.parameter("SD_SCHUL_CODE", schoolCode)
-            if (mealSchoolCode != null)
-                this.parameter("MMEAL_SC_CODE", mealSchoolCode.mealCode)
+            if (mealType != null)
+                this.parameter("MMEAL_SC_CODE", mealType.mealCode)
             this.parameter("MLSV_YMD", DATE_FORMATTER.format(date))
             parameter("Type", "json")
         }
