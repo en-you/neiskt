@@ -46,8 +46,8 @@ class NeisClient {
                 this.parameter("MMEAL_SC_CODE", mealType.mealCode)
         }
         val json = JsonMapper.parse(response)
-        return json["mealServiceDietInfo"].values().last()["row"].values()
-            .map { mealInfo ->
+        return json["mealServiceDietInfo"].values().lastOrNull()?.get("row")?.values()
+            ?.map { mealInfo ->
                 SchoolMealInfo(
                     mealInfo["SD_SCHUL_CODE"].text()!!,
                     mealInfo["SCHUL_NM"].text()!!,
@@ -60,7 +60,7 @@ class NeisClient {
                     mealInfo["CAL_INFO"].text()!!,
                     mealInfo
                 )
-            }
+            } ?: emptyList()
     }
 
     private suspend fun request(endpoint: String, builder: HttpRequestBuilder.() -> Unit): String {
@@ -75,8 +75,8 @@ class NeisClient {
     }
 
     private fun parseSchoolInfo(json: JsonMapper): List<SchoolInfo> {
-        return json["schoolInfo"].values().last()["row"].values()
-            .map { schoolInfo ->
+        return json["schoolInfo"].values().lastOrNull()?.get("row")?.values()
+            ?.map { schoolInfo ->
                 SchoolInfo(
                     schoolInfo["ATPT_OFCDC_SC_CODE"].text()!!,
                     schoolInfo["ATPT_OFCDC_SC_NM"].text()!!,
@@ -86,7 +86,7 @@ class NeisClient {
                     schoolInfo["ORG_RDNMA"].text()!! + schoolInfo["ORG_RDNDA"].text()!!,
                     schoolInfo
                 )
-            }
+            } ?: emptyList()
     }
 
     companion object {
