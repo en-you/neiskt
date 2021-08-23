@@ -11,6 +11,10 @@ fun main() {
         val school = searchResult.first()
         val officeCode = school.officeCode
         val schoolCode = school.code
+        val school2 = client.retrieveSchoolByCode(officeCode, schoolCode).first()
+        println(school2)
+        if (school.code != school2.code)
+            error("School differs")
 
         val mealData = client.retrieveMeals(
             officeCode, schoolCode, SchoolMeal.LUNCH,

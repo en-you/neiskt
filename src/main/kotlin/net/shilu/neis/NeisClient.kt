@@ -17,22 +17,19 @@ import java.time.temporal.TemporalAccessor
 class NeisClient {
     suspend fun search(schoolName: String): List<SchoolInfo> {
         val response = request("/schoolInfo") {
-            parameter("SCHUL_NM", schoolName)
-            parameter("Type", "json")
+            this.parameter("SCHUL_NM", schoolName)
         }
-        val json = JsonMapper.parse(response)
-        return json["schoolInfo"].values().last()["row"].values()
-            .map { schoolInfo ->
-                SchoolInfo(
-                    schoolInfo["ATPT_OFCDC_SC_CODE"].text()!!,
-                    schoolInfo["ATPT_OFCDC_SC_NM"].text()!!,
-                    schoolInfo["SD_SCHUL_CODE"].text()!!,
-                    schoolInfo["SCHUL_NM"].text()!!,
-                    schoolInfo["SCHUL_KND_SC_NM"].text()!!,
-                    schoolInfo["ORG_RDNMA"].text()!! + schoolInfo["ORG_RDNDA"].text()!!,
-                    schoolInfo
-                )
-            }
+        return parseSchoolInfo(JsonMapper.parse(response))
+    }
+
+    suspend fun retrieveSchoolByCode(officeCode: String? = null, schoolCode: String? = null): List<SchoolInfo> {
+        val response = request("/schoolInfo") {
+            if (officeCode != null)
+                this.parameter("ATPT_OFCDC_SC_CODE", officeCode)
+            if (schoolCode != null)
+                this.parameter("SD_SCHUL_CODE", schoolCode)
+        }
+        return parseSchoolInfo(JsonMapper.parse(response))
     }
 
     suspend fun retrieveMeals(
@@ -44,10 +41,9 @@ class NeisClient {
         val response = request("/mealServiceDietInfo") {
             this.parameter("ATPT_OFCDC_SC_CODE", officeCode)
             this.parameter("SD_SCHUL_CODE", schoolCode)
+            this.parameter("MLSV_YMD", DATE_FORMATTER.format(date))
             if (mealType != null)
                 this.parameter("MMEAL_SC_CODE", mealType.mealCode)
-            this.parameter("MLSV_YMD", DATE_FORMATTER.format(date))
-            parameter("Type", "json")
         }
         val json = JsonMapper.parse(response)
         return json["mealServiceDietInfo"].values().last()["row"].values()
@@ -72,9 +68,25 @@ class NeisClient {
         httpClient.use { client ->
             val response = client.request<HttpResponse>(BASE_URL + endpoint) {
                 this.apply(builder)
+                this.parameter("Type", "json")
             }
             return response.readText(StandardCharsets.UTF_8)
         }
+    }
+
+    private fun parseSchoolInfo(json: JsonMapper): List<SchoolInfo> {
+        return json["schoolInfo"].values().last()["row"].values()
+            .map { schoolInfo ->
+                SchoolInfo(
+                    schoolInfo["ATPT_OFCDC_SC_CODE"].text()!!,
+                    schoolInfo["ATPT_OFCDC_SC_NM"].text()!!,
+                    schoolInfo["SD_SCHUL_CODE"].text()!!,
+                    schoolInfo["SCHUL_NM"].text()!!,
+                    schoolInfo["SCHUL_KND_SC_NM"].text()!!,
+                    schoolInfo["ORG_RDNMA"].text()!! + schoolInfo["ORG_RDNDA"].text()!!,
+                    schoolInfo
+                )
+            }
     }
 
     companion object {
